@@ -12,7 +12,15 @@ export default async function ImpactPage() {
     return sum + (nums.length ? nums.reduce((a, b) => a + b, 0) : 0);
   }, 0);
   const orgs = new Set(donations.map((d) => d.recipientOrg.toLowerCase())).size;
-  const countries = new Set(donations.map((d) => d.country).filter(Boolean)).size;
+  const countrySet = new Set<string>();
+  for (const d of donations) {
+    (d.country || "")
+      .split(/,|&|\band\b/i)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .forEach((c) => countrySet.add(c));
+  }
+  const countries = countrySet.size;
 
   return (
     <div>
