@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+.env
+.env.local
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+.vercel
+
+# Glide exports contain personal data (names, emails, phones) — keep out of the public repo.
+# They live locally at data/glide-export/ for running scripts/import-glide.ts.
+data/glide-export/

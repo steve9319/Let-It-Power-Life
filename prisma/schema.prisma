@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Laptop {
+  id              String        @id @default(cuid())
+  laptopId        String        @unique
+  model           String
+  cpu             String?
+  ram             String?
+  storage         String?
+  specSummary     String?
+  adaptor         String?
+  os              String?
+  officeInstalled Boolean       @default(false)
+  originalUnits   Int           @default(0)
+  status          String        @default("Available")
+  photoUrl        String?
+  createdAt       DateTime      @default(now())
+  items           RequestItem[]
+}
+
+model DonationRequest {
+  id                    String        @id @default(cuid())
+  requestId             String        @unique
+  organisationName      String
+  uen                   String?
+  contactPerson         String?
+  email                 String
+  country               String?
+  countryCode           String?
+  phoneNumber           String?
+  laptopUses            String?
+  notes                 String?
+  finalRecipientOrg     String?
+  finalRecipientCountry String?
+  decision              String        @default("Pending")
+  decisionNote          String?
+  decidedAt             DateTime?
+  fulfilmentStatus      String?
+  processingAt          DateTime?
+  preparingAt           DateTime?
+  outForDeliveryAt      DateTime?
+  deliveredAt           DateTime?
+  submittedAt           DateTime      @default(now())
+  items                 RequestItem[]
+}
+
+model RequestItem {
+  id                String          @id @default(cuid())
+  requestId         String
+  request           DonationRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  laptopId          String
+  laptop            Laptop          @relation(fields: [laptopId], references: [id])
+  quantityRequested Int
+  quantityApproved  Int?
+}
+
+model PastDonation {
+  id             String    @id @default(cuid())
+  recipientOrg   String
+  country        String?
+  laptopsSummary String?
+  deliveredDate  DateTime?
+  photoUrl       String?
+  story          String?
+  published      Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+}
+
+model CountryCode {
+  country String @id
+  code    String
+}
+
+model Otp {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  consumed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+}
