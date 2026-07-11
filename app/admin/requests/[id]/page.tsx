@@ -43,6 +43,7 @@ export default async function AdminRequestDetail({ params }: { params: Promise<{
         <Row k="Phone" v={[request.countryCode, request.phoneNumber].filter(Boolean).join(" ")} />
         <Row k="Laptop uses" v={request.laptopUses} />
         <Row k="Final recipient" v={[request.finalRecipientOrg, request.finalRecipientCountry].filter(Boolean).join(", ")} />
+        <Row k="Proposed allocation" v={request.proposedAllocation} />
         <Row k="Notes" v={request.notes} />
       </div>
 

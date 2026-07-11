@@ -56,6 +56,7 @@ export function RequestWizard({
   const [uses, setUses] = useState("");
   const [recipient, setRecipient] = useState("");
   const [recipientCountry, setRecipientCountry] = useState("");
+  const [allocation, setAllocation] = useState("");
   const [notes, setNotes] = useState("");
 
   const [doneId, setDoneId] = useState<string | null>(null);
@@ -327,11 +328,19 @@ export function RequestWizard({
           <p className="text-xs text-navy/50 mt-1">If your own organisation will use them, enter the same name.</p>
           <label className={labelCls}>Final recipient country (optional)</label>
           <input className={inputCls} value={recipientCountry} onChange={(e) => setRecipientCountry(e.target.value)} placeholder="e.g. Laos" />
+          <label className={labelCls}>Proposed allocation *</label>
+          <textarea
+            className={`${inputCls} min-h-[90px]`}
+            value={allocation}
+            onChange={(e) => setAllocation(e.target.value)}
+            placeholder="How do you plan to allocate these laptops? e.g. 5 to a rural school, 3 to a youth training centre"
+          />
+          <p className="text-xs text-navy/50 mt-1">Which beneficiaries or programmes will receive them, and roughly how many to each.</p>
           <label className={labelCls}>Notes (optional)</label>
           <textarea className={`${inputCls} min-h-[70px]`} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Anything else we should know?" />
           <div className="flex justify-between mt-6">
             <button className={btnGhost} onClick={back}>← Back</button>
-            <button className={btnPrimary} disabled={!uses.trim() || !recipient.trim()} onClick={next}>
+            <button className={btnPrimary} disabled={!uses.trim() || !recipient.trim() || !allocation.trim()} onClick={next}>
               Review request
             </button>
           </div>
@@ -362,6 +371,8 @@ export function RequestWizard({
               <br />
               <strong>Final recipient:</strong> {recipient}
               {recipientCountry && ` (${recipientCountry})`}
+              <br />
+              <strong>Proposed allocation:</strong> {allocation}
               {notes && (
                 <>
                   <br />
@@ -387,6 +398,7 @@ export function RequestWizard({
                     notes,
                     finalRecipientOrg: recipient,
                     finalRecipientCountry: recipientCountry,
+                    proposedAllocation: allocation,
                     items: laptops.map((l) => ({ laptopId: l.id, quantity: quantities[l.id] ?? 0 })),
                   });
                   if (r.ok) setDoneId(r.requestId!);

@@ -40,6 +40,7 @@ model DonationRequest {
   notes                 String?
   finalRecipientOrg     String?
   finalRecipientCountry String?
+  proposedAllocation    String?
   decision              String        @default("Pending")
   decisionNote          String?
   decidedAt             DateTime?

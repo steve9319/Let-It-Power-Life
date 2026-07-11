@@ -26,6 +26,7 @@ export type SubmitRequestInput = {
   notes: string;
   finalRecipientOrg: string;
   finalRecipientCountry: string;
+  proposedAllocation: string;
   items: { laptopId: string; quantity: number }[];
 };
 
@@ -67,6 +68,7 @@ export async function submitRequestAction(input: SubmitRequestInput) {
       notes: input.notes.trim() || null,
       finalRecipientOrg: input.finalRecipientOrg.trim(),
       finalRecipientCountry: input.finalRecipientCountry.trim() || null,
+      proposedAllocation: input.proposedAllocation.trim() || null,
       items: {
         create: items.map((i) => ({ laptopId: i.laptopId, quantityRequested: i.quantity })),
       },
