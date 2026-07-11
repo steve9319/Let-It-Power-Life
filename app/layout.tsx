@@ -35,11 +35,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
         <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-8">{children}</main>
         <footer className="bg-navy-dark text-white/70 text-sm">
-          <div className="max-w-5xl mx-auto px-4 py-6 flex flex-wrap justify-between gap-2">
+          <div className="max-w-5xl mx-auto px-4 py-6">
             <span>Let It Power Life — giving laptops a second life with NGOs & NPOs.</span>
-            <a href="mailto:arisatan9319@gmail.com" className="hover:text-white">
-              arisatan9319@gmail.com
-            </a>
           </div>
         </footer>
       </body>
