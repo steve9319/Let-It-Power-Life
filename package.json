@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push --accept-data-loss && next build",
+    "build": "prisma generate && prisma db push && next build",
     "build:local": "prisma generate && next build",
     "start": "next start",
     "postinstall": "prisma generate",
-    "import-glide": "tsx scripts/import-glide.ts"
+    "import-glide": "tsx scripts/import-glide.ts",
+    "rehost-photos": "tsx scripts/rehost-photos.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
