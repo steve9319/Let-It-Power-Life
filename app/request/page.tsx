@@ -20,10 +20,14 @@ export default async function RequestPage({
   return (
     <div className="max-w-3xl mx-auto">
       <h1 className="text-3xl font-bold mb-2">Request Laptops</h1>
-      <p className="text-navy/70 mb-8">
+      <p className="text-navy/70 mb-6">
         For NGOs and NPOs. Verify your email, tell us about your organisation, and choose the
         laptops you need — we review every request personally.
       </p>
+      <div className="mb-8 rounded-xl bg-teal-light border border-teal/20 px-4 py-3 text-sm text-teal-dark">
+        📅 <strong>New laptops will be available in Q4 2026.</strong> You&apos;re welcome to submit a
+        request now — we&apos;ll be in touch as stock arrives.
+      </div>
       <RequestWizard
         laptops={selectable.map((l) => ({
           id: l.id,
