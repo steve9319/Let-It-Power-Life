@@ -69,6 +69,7 @@ export async function saveLaptopAction(formData: FormData) {
     officeInstalled: formData.get("officeInstalled") === "on",
     originalUnits: Math.max(0, parseInt(String(formData.get("originalUnits") ?? "0"), 10) || 0),
     status: String(formData.get("status") ?? "Available"),
+    donatedBy: String(formData.get("donatedBy") ?? "").trim() || null,
     ...(uploadedUrl ? { photoUrl: uploadedUrl } : photoUrlText ? { photoUrl: photoUrlText } : {}),
   };
   if (!data.model) return;

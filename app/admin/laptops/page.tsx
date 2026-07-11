@@ -24,6 +24,7 @@ export default async function AdminLaptopsPage() {
               <th className="px-5 py-3">Spec</th>
               <th className="px-5 py-3">Stock</th>
               <th className="px-5 py-3">Status</th>
+              <th className="px-5 py-3">Donated by</th>
               <th className="px-5 py-3"></th>
             </tr>
           </thead>
@@ -40,6 +41,7 @@ export default async function AdminLaptopsPage() {
                   <span className="text-navy/40"> / {l.originalUnits}</span>
                 </td>
                 <td className="px-5 py-3">{l.status}</td>
+                <td className="px-5 py-3 text-navy/70">{l.donatedBy ?? "—"}</td>
                 <td className="px-5 py-3 text-right">
                   <Link href={`/admin/laptops/${l.id}`} className="text-teal font-semibold underline">
                     Edit
@@ -49,7 +51,7 @@ export default async function AdminLaptopsPage() {
             ))}
             {laptops.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-5 py-8 text-center text-navy/50">
+                <td colSpan={7} className="px-5 py-8 text-center text-navy/50">
                   No laptops yet.
                 </td>
               </tr>

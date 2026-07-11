@@ -14,6 +14,7 @@ export type LaptopWithStock = {
   originalUnits: number;
   status: string;
   photoUrl: string | null;
+  donatedBy: string | null;
   available: number;
 };
 

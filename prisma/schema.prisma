@@ -21,6 +21,7 @@ model Laptop {
   originalUnits   Int           @default(0)
   status          String        @default("Available")
   photoUrl        String?
+  donatedBy       String?
   createdAt       DateTime      @default(now())
   items           RequestItem[]
 }

@@ -14,6 +14,7 @@ type LaptopValues = {
   originalUnits?: number;
   status?: string;
   photoUrl?: string | null;
+  donatedBy?: string | null;
 };
 
 const input =
@@ -75,6 +76,8 @@ export function LaptopForm({ values, suggestedId }: { values: LaptopValues; sugg
           Microsoft Office installed
         </label>
       </div>
+      <label className={label}>Donated by</label>
+      <input name="donatedBy" defaultValue={values.donatedBy ?? ""} className={input} placeholder="e.g. Alex Kwok, NUS Enterprise" />
       <label className={label}>Photo</label>
       {values.photoUrl && (
         // eslint-disable-next-line @next/next/no-img-element
