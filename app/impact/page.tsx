@@ -11,7 +11,16 @@ export default async function ImpactPage() {
     const nums = (d.laptopsSummary?.match(/×\s*(\d+)/g) || []).map((m) => parseInt(m.replace(/\D/g, ""), 10));
     return sum + (nums.length ? nums.reduce((a, b) => a + b, 0) : 0);
   }, 0);
-  const orgs = new Set(donations.map((d) => d.recipientOrg.toLowerCase())).size;
+  // Count distinct overseas beneficiary organisations (internal field; never named on the page).
+  const orgSet = new Set<string>();
+  for (const d of donations) {
+    (d.beneficiaryOrgs || "")
+      .split(/[,;]/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .forEach((o) => orgSet.add(o.toLowerCase()));
+  }
+  const orgs = orgSet.size;
   const countrySet = new Set<string>();
   for (const d of donations) {
     (d.country || "")

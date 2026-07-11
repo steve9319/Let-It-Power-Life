@@ -61,6 +61,7 @@ function ShowcaseForm({
     deliveredDate: Date | null;
     photoUrl: string | null;
     story: string | null;
+    beneficiaryOrgs: string | null;
     published: boolean;
   };
 }) {
@@ -88,6 +89,8 @@ function ShowcaseForm({
       <input name="laptopsSummary" defaultValue={donation?.laptopsSummary ?? ""} className={input} />
       <label className={label}>Story</label>
       <textarea name="story" defaultValue={donation?.story ?? ""} className={`${input} min-h-[80px]`} />
+      <label className={label}>Beneficiary organisations (internal — not shown publicly)</label>
+      <input name="beneficiaryOrgs" defaultValue={donation?.beneficiaryOrgs ?? ""} className={input} placeholder="e.g. His Child, CEAI — comma-separated; counted in 'Organisations helped'" />
       <label className={label}>Photo</label>
       {donation?.photoUrl && (
         // eslint-disable-next-line @next/next/no-img-element

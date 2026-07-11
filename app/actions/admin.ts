@@ -209,6 +209,7 @@ export async function saveShowcaseAction(formData: FormData) {
     country: String(formData.get("country") ?? "").trim() || null,
     laptopsSummary: String(formData.get("laptopsSummary") ?? "").trim() || null,
     story: String(formData.get("story") ?? "").trim() || null,
+    beneficiaryOrgs: String(formData.get("beneficiaryOrgs") ?? "").trim() || null,
     deliveredDate: dateText ? new Date(dateText) : null,
     published: formData.get("published") === "on",
     ...(uploadedUrl ? { photoUrl: uploadedUrl } : {}),

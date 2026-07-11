@@ -71,6 +71,7 @@ model PastDonation {
   deliveredDate  DateTime?
   photoUrl       String?
   story          String?
+  beneficiaryOrgs String?  // internal only — comma-separated final recipients, never shown publicly
   published      Boolean   @default(true)
   createdAt      DateTime  @default(now())
 }
