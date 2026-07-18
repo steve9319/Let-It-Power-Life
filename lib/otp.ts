@@ -26,7 +26,10 @@ export async function requestOtp(rawEmail: string): Promise<{ ok: boolean; error
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
     console.error("[otp] email send failed:", detail);
-    return { ok: false, error: `We couldn't send the verification email. ${detail}` };
+    return {
+      ok: false,
+      error: "We couldn't send the verification email right now. Please try again shortly, or contact us if it persists.",
+    };
   }
   return { ok: true };
 }
