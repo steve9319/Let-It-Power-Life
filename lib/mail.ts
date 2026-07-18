@@ -4,14 +4,21 @@ const APP_NAME = process.env.EMAIL_FROM_NAME || "Let It Power Life";
 
 function transporter() {
   if (!process.env.SMTP_USER || !process.env.SMTP_APP_PASSWORD) return null;
+  const host = process.env.SMTP_HOST || "smtp-relay.brevo.com";
+  const port = parseInt(process.env.SMTP_PORT || "587", 10);
   return nodemailer.createTransport({
-    service: "gmail",
+    host,
+    port,
+    secure: port === 465, // 587 uses STARTTLS
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_APP_PASSWORD,
     },
   });
 }
+
+// The visible "From" address (a verified sender), which may differ from the SMTP login.
+const fromAddress = () => process.env.EMAIL_FROM || process.env.SMTP_USER || "";
 
 function layout(title: string, bodyHtml: string): string {
   return `<!doctype html><html><body style="margin:0;padding:0;background:#F7F7F5;font-family:Helvetica,Arial,sans-serif;">
@@ -38,10 +45,11 @@ export async function sendMail(to: string, subject: string, title: string, bodyH
     throw new Error("Email is not configured — SMTP_USER / SMTP_APP_PASSWORD missing.");
   }
   await t.sendMail({
-    from: `"${APP_NAME}" <${process.env.SMTP_USER}>`,
+    from: `"${APP_NAME}" <${fromAddress()}>`,
     to,
     subject,
     html: layout(title, bodyHtml),
+    replyTo: process.env.EMAIL_REPLY_TO || undefined,
   });
 }
 
