@@ -31,19 +31,18 @@ function layout(title: string, bodyHtml: string): string {
 export async function sendMail(to: string, subject: string, title: string, bodyHtml: string) {
   const t = transporter();
   if (!t) {
-    console.log(`[mail:dev] To: ${to} | Subject: ${subject}\n${bodyHtml.replace(/<[^>]+>/g, " ")}`);
-    return;
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[mail:dev] To: ${to} | Subject: ${subject}\n${bodyHtml.replace(/<[^>]+>/g, " ")}`);
+      return;
+    }
+    throw new Error("Email is not configured — SMTP_USER / SMTP_APP_PASSWORD missing.");
   }
-  try {
-    await t.sendMail({
-      from: `"${APP_NAME}" <${process.env.SMTP_USER}>`,
-      to,
-      subject,
-      html: layout(title, bodyHtml),
-    });
-  } catch (err) {
-    console.error("[mail] send failed:", err);
-  }
+  await t.sendMail({
+    from: `"${APP_NAME}" <${process.env.SMTP_USER}>`,
+    to,
+    subject,
+    html: layout(title, bodyHtml),
+  });
 }
 
 export async function sendOtpEmail(to: string, code: string) {

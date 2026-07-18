@@ -21,7 +21,13 @@ export async function requestOtp(rawEmail: string): Promise<{ ok: boolean; error
   await db.otp.create({
     data: { email, code, expiresAt: new Date(Date.now() + OTP_TTL_MS) },
   });
-  await sendOtpEmail(email, code);
+  try {
+    await sendOtpEmail(email, code);
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    console.error("[otp] email send failed:", detail);
+    return { ok: false, error: `We couldn't send the verification email. ${detail}` };
+  }
   return { ok: true };
 }
 
