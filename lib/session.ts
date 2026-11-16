@@ -39,6 +39,11 @@ export async function getRequestorEmail(): Promise<string | null> {
   return unsign(jar.get(REQUESTOR_COOKIE)?.value);
 }
 
+export async function clearRequestorEmail() {
+  const jar = await cookies();
+  jar.delete(REQUESTOR_COOKIE);
+}
+
 export async function setAdminSession() {
   const jar = await cookies();
   jar.set(ADMIN_COOKIE, sign("admin"), {

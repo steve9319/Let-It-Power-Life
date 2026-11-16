@@ -7,16 +7,17 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
   await requireAdminPage();
-  const [pending, inFulfilment, delivered, stock] = await Promise.all([
+  const [pending, inFulfilment, delivered, newDonations, stock] = await Promise.all([
     db.donationRequest.count({ where: { decision: "Pending" } }),
     db.donationRequest.count({ where: { decision: "Approved", fulfilmentStatus: { not: "Delivered" } } }),
     db.donationRequest.count({ where: { fulfilmentStatus: "Delivered" } }),
+    db.laptopDonation.count({ where: { status: "New" } }),
     laptopsWithStock(),
   ]);
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Link href="/admin/requests" className="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
           <div className="text-3xl font-bold text-amber-600">{pending}</div>
           <div className="text-xs text-navy/60 mt-1">Pending requests</div>
@@ -29,6 +30,10 @@ export default async function AdminDashboard() {
           <div className="text-3xl font-bold text-navy">{delivered}</div>
           <div className="text-xs text-navy/60 mt-1">Delivered</div>
         </div>
+        <Link href="/admin/donations" className="bg-white rounded-2xl shadow-sm p-5 text-center hover:shadow-md transition-shadow">
+          <div className="text-3xl font-bold text-teal-dark">{newDonations}</div>
+          <div className="text-xs text-navy/60 mt-1">New donations</div>
+        </Link>
       </div>
       <h2 className="font-bold mb-3">Stock</h2>
       <div className="bg-white rounded-2xl shadow-sm divide-y divide-gray-100">

@@ -92,3 +92,28 @@ model Otp {
 
   @@index([email, createdAt])
 }
+
+// Someone offering their own laptop. Separate from DonationRequest (an NGO asking for one).
+model LaptopDonation {
+  id              String   @id @default(cuid())
+  donationId      String   @unique
+  name            String
+  email           String
+  phone           String?
+  quantity        Int
+  brand           String
+  brandOther      String?
+  model           String?
+  approximateAge  String?
+  condition       String?
+  chargerIncluded String
+  dataWiped       String?
+  handover        String?
+  location        String?
+  notes           String?
+  status          String   @default("New")
+  submittedAt     DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([email, submittedAt])
+}

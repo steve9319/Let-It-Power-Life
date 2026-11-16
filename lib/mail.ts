@@ -35,7 +35,13 @@ function layout(title: string, bodyHtml: string): string {
 </body></html>`;
 }
 
-export async function sendMail(to: string, subject: string, title: string, bodyHtml: string) {
+export async function sendMail(
+  to: string,
+  subject: string,
+  title: string,
+  bodyHtml: string,
+  options?: { replyTo?: string }
+) {
   const t = transporter();
   if (!t) {
     if (process.env.NODE_ENV !== "production") {
@@ -49,7 +55,7 @@ export async function sendMail(to: string, subject: string, title: string, bodyH
     to,
     subject,
     html: layout(title, bodyHtml),
-    replyTo: process.env.EMAIL_REPLY_TO || undefined,
+    replyTo: options?.replyTo || process.env.EMAIL_REPLY_TO || undefined,
   });
 }
 
@@ -110,6 +116,89 @@ export async function sendRejected(to: string, requestId: string, org: string, n
      <p>Thank you for your interest. Unfortunately we are unable to fulfil your request (${requestId}) at this time.</p>
      ${note ? `<p><em>Note from our team: ${note}</em></p>` : ""}
      <p>Laptop stock changes over time — you are very welcome to submit a new request in future.</p>`
+  );
+}
+
+function esc(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+export type DonationNotice = {
+  donationId: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  quantity: number;
+  brand: string;
+  model: string | null;
+  approximateAge: string | null;
+  condition: string | null;
+  chargerIncluded: string;
+  dataWiped: string | null;
+  handover: string | null;
+  location: string | null;
+  notes: string | null;
+};
+
+function donationRows(details: DonationNotice): string {
+  const rows: [string, string | null][] = [
+    ["Name", details.name],
+    ["Email", details.email],
+    ["Phone", details.phone],
+    ["Number of laptops", String(details.quantity)],
+    ["Brand", details.brand],
+    ["Model", details.model],
+    ["Approximate age", details.approximateAge],
+    ["Condition", details.condition],
+    ["Charger included", details.chargerIncluded],
+    ["Data wiped", details.dataWiped],
+    ["Preferred handover", details.handover],
+    ["Area", details.location],
+    ["Notes", details.notes],
+  ];
+  return `<table style="border-collapse:collapse;width:100%;margin:12px 0;">${rows
+    .filter((row): row is [string, string] => Boolean(row[1]))
+    .map(
+      ([label, value]) =>
+        `<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#5c6b86;vertical-align:top;width:42%;">${esc(label)}</td><td style="padding:6px 8px;border-bottom:1px solid #eee;">${esc(value).replace(/\n/g, "<br>")}</td></tr>`
+    )
+    .join("")}</table>`;
+}
+
+export async function sendDonationThanks(to: string, details: DonationNotice) {
+  const laptopWord = details.quantity === 1 ? "laptop" : "laptops";
+  await sendMail(
+    to,
+    `We received your laptop offer ${details.donationId}`,
+    "Thank you for offering a laptop",
+    `<p>Dear ${esc(details.name)},</p>
+     <p>Thank you — we've received your offer of ${details.quantity} ${laptopWord}. We'll reply to this email address.</p>
+     <p><strong>Offer ID: ${esc(details.donationId)}</strong></p>
+     <p><strong>Is the charger included?</strong> ${esc(details.chargerIncluded)}</p>
+     ${donationRows(details)}
+     <p>If you can, please back up anything you want to keep and wipe the laptop before you hand it over. If you're not sure how, just reply and we'll help.</p>
+     <p>We'll be in touch about the handover.</p>`
+  );
+}
+
+export async function sendDonationAdminNotice(details: DonationNotice) {
+  const to = (process.env.ADMIN_EMAIL ?? "").trim();
+  if (!to) {
+    console.warn("[donation] ADMIN_EMAIL is not set — admin notification skipped");
+    return;
+  }
+  await sendMail(
+    to,
+    `New laptop offer ${details.donationId}`,
+    "New laptop offer",
+    `<p>Someone offered a laptop on the Donate page.</p>
+     <p><strong>Is the charger included?</strong> ${esc(details.chargerIncluded)}</p>
+     ${donationRows(details)}`,
+    { replyTo: details.email }
   );
 }
 

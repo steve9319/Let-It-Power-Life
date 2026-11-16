@@ -5,12 +5,13 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Let It Power Life — Laptop Donations for NGOs",
   description:
-    "Donating refurbished laptops to NGOs and NPOs across Asia. Browse available laptops, request for your organisation, and track delivery.",
+    "Donating refurbished laptops to NGOs and NPOs across Asia. Browse available laptops, request for your organisation, offer a laptop, and track delivery.",
 };
 
 const nav = [
   { href: "/", label: "Laptops" },
   { href: "/request", label: "Request" },
+  { href: "/donate", label: "Donate" },
   { href: "/track", label: "Track Request" },
   { href: "/impact", label: "Our Impact" },
 ];
