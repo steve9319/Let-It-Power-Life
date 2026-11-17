@@ -2,9 +2,10 @@
 
 import { db } from "@/lib/db";
 import { requestOtp, verifyOtp } from "@/lib/otp";
-import { getRequestorEmail, setRequestorEmail } from "@/lib/session";
+import { brandLabel, parseDonation, type DonationInput } from "@/lib/donation";
+import { clearRequestorEmail, getRequestorEmail, setRequestorEmail } from "@/lib/session";
 import { laptopsWithStock, nextRequestId } from "@/lib/stock";
-import { sendRequestReceived } from "@/lib/mail";
+import { sendDonationAdminNotice, sendDonationThanks, sendRequestReceived } from "@/lib/mail";
 
 export async function sendCodeAction(email: string) {
   return requestOtp(email);
@@ -82,6 +83,100 @@ export async function submitRequestAction(input: SubmitRequestInput) {
   await sendRequestReceived(email, requestId, input.organisationName.trim(), lines);
 
   return { ok: true as const, requestId };
+}
+
+const DONATION_RATE_WINDOW_MS = 15 * 60 * 1000;
+const DONATION_RATE_MAX = 3;
+
+async function nextDonationId(): Promise<string> {
+  const year = new Date().getFullYear();
+  const count = await db.laptopDonation.count();
+  return `D-${year}-${String(count + 1).padStart(3, "0")}`;
+}
+
+export async function useDifferentEmailAction() {
+  await clearRequestorEmail();
+}
+
+export async function submitDonationAction(input: DonationInput) {
+  const email = await getRequestorEmail();
+  if (!email) return { ok: false as const, error: "Please verify your email first." };
+
+  const parsed = parseDonation(input);
+  if (!parsed.ok) return { ok: false as const, error: parsed.error };
+
+  const since = new Date(Date.now() - DONATION_RATE_WINDOW_MS);
+  const recent = await db.laptopDonation.count({ where: { email, submittedAt: { gte: since } } });
+  if (recent >= DONATION_RATE_MAX) {
+    return {
+      ok: false as const,
+      error: "You've sent several offers recently. Please wait 15 minutes and try again.",
+    };
+  }
+
+  const donationId = await nextDonationId();
+  const value = parsed.value;
+  await db.laptopDonation.create({
+    data: {
+      donationId,
+      name: value.name,
+      email,
+      phone: value.phone,
+      quantity: value.quantity,
+      brand: value.brand,
+      brandOther: value.brandOther,
+      model: value.model,
+      approximateAge: value.approximateAge,
+      condition: value.condition,
+      chargerIncluded: value.chargerIncluded,
+      dataWiped: value.dataWiped,
+      handover: value.handover,
+      location: value.location,
+      notes: value.notes,
+    },
+  });
+
+  const notice = {
+    donationId,
+    name: value.name,
+    email,
+    phone: value.phone,
+    quantity: value.quantity,
+    brand: brandLabel(value.brand, value.brandOther),
+    model: value.model,
+    approximateAge: value.approximateAge,
+    condition: value.condition,
+    chargerIncluded: value.chargerIncluded,
+    dataWiped: value.dataWiped,
+    handover: value.handover,
+    location: value.location,
+    notes: value.notes,
+  };
+
+  // Saved first, same as a laptop request. A mail failure is reported and logged,
+  // and does not remove the offer. SMTP detail stays in the server log.
+  let donorEmailFailed = false;
+  try {
+    await sendDonationThanks(email, notice);
+  } catch (err) {
+    donorEmailFailed = true;
+    console.error("[donation] donor email failed:", err instanceof Error ? err.message : err);
+  }
+  try {
+    await sendDonationAdminNotice(notice);
+  } catch (err) {
+    console.error("[donation] admin email failed:", err instanceof Error ? err.message : err);
+  }
+
+  if (donorEmailFailed) {
+    return {
+      ok: false as const,
+      donationId,
+      error: "We saved your offer, but couldn't send the confirmation email. You don't need to submit it again.",
+    };
+  }
+
+  return { ok: true as const, donationId };
 }
 
 export async function myRequestsAction() {

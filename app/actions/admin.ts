@@ -7,6 +7,7 @@ import { put } from "@vercel/blob";
 import { db } from "@/lib/db";
 import { isAdmin, setAdminSession, clearAdminSession } from "@/lib/session";
 import { laptopsWithStock, nextLaptopId } from "@/lib/stock";
+import { DONATION_STATUSES } from "@/lib/donation";
 import { sendApproved, sendRejected, sendStatusUpdate } from "@/lib/mail";
 
 function safeEqual(a: string, b: string): boolean {
@@ -196,6 +197,18 @@ export async function advanceFulfilmentAction(formData: FormData) {
   }
   revalidatePath("/admin/requests");
   redirect(`/admin/requests/${id}`);
+}
+
+export async function updateDonationStatusAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "");
+  if (!id || !(DONATION_STATUSES as readonly string[]).includes(status)) return;
+  await db.laptopDonation.update({ where: { id }, data: { status } });
+  revalidatePath("/admin/donations");
+  revalidatePath("/admin");
+  revalidatePath("/donate");
+  redirect(`/admin/donations/${id}`);
 }
 
 export async function saveShowcaseAction(formData: FormData) {

@@ -12,7 +12,11 @@ export default async function LaptopsPage() {
         <h1 className="text-3xl font-bold">Available Laptops</h1>
         <p className="text-navy/70 mt-2 max-w-2xl">
           Refurbished laptops donated to NGOs and NPOs, free of charge. Browse the models below and
-          submit a request for your organisation.
+          submit a request for your organisation. Have a laptop you no longer need?{" "}
+          <Link href="/donate" className="font-semibold text-teal-dark underline underline-offset-2">
+            Offer it here
+          </Link>
+          .
         </p>
       </div>
       {laptops.length === 0 && (
