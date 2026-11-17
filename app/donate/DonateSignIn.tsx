@@ -48,7 +48,7 @@ export function DonateSignIn() {
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
             placeholder="••••••"
           />
-          <p className="text-xs text-navy/50 mt-2">Code expires in 10 minutes. Check your spam folder if you don&apos;t see it.</p>
+          <p className="text-xs text-navy/50 mt-2">Code expires in 10 minutes.</p>
         </>
       )}
       <div className="flex items-center justify-between mt-6">
@@ -103,6 +103,9 @@ export function DonateSignIn() {
           </button>
         )}
       </div>
+      <p className="text-xs text-navy/60 mt-4">
+        We&apos;ll email you a code. If you don&apos;t see it, please check your Promotions or Spam folder.
+      </p>
     </div>
   );
 }

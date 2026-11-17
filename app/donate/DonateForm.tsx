@@ -18,6 +18,8 @@ const labelCls = "block text-sm font-semibold mb-1.5 mt-4";
 const btnPrimary =
   "bg-teal hover:bg-teal-dark text-white font-semibold rounded-xl px-6 py-2.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 const btnGhost = "text-navy/60 hover:text-navy font-semibold px-4 py-2.5";
+const CONFIRMATION_NOTE =
+  "We'll email you a confirmation. If you don't see it, please check your Promotions or Spam folder.";
 
 export function DonateForm({ email }: { email: string }) {
   const router = useRouter();
@@ -99,6 +101,7 @@ export function DonateForm({ email }: { email: string }) {
               ? " We saved it. You don't need to submit it again."
               : ` A confirmation is on its way to ${email}.`}
           </p>
+          {!error && <p className="mt-2">{CONFIRMATION_NOTE}</p>}
         </div>
       )}
       <h2 className="text-xl font-bold">Offer a laptop</h2>
@@ -231,6 +234,7 @@ export function DonateForm({ email }: { email: string }) {
           {pending ? "Submitting…" : "Submit offer"}
         </button>
       </div>
+      <p className="text-xs text-navy/60 mt-3">{CONFIRMATION_NOTE}</p>
     </div>
   );
 }

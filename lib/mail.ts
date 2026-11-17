@@ -59,14 +59,41 @@ export async function sendMail(
   });
 }
 
-export async function sendOtpEmail(to: string, code: string) {
-  await sendMail(
+// Plain personal message: text plus minimal HTML, no header banner.
+async function sendPlainMail(to: string, subject: string, text: string, bodyHtml: string) {
+  const t = transporter();
+  if (!t) {
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[mail:dev] To: ${to} | Subject: ${subject}\n${text}`);
+      return;
+    }
+    throw new Error("Email is not configured — SMTP_USER / SMTP_APP_PASSWORD missing.");
+  }
+  await t.sendMail({
+    from: `"${APP_NAME}" <${fromAddress()}>`,
     to,
-    `${code} is your ${APP_NAME} verification code`,
-    "Your verification code",
-    `<p>Use this code to verify your email address:</p>
-     <p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#0E7C7B;">${code}</p>
-     <p>The code expires in 10 minutes. If you didn't request it, you can ignore this email.</p>`
+    subject,
+    text,
+    html: `<!doctype html><html><body style="margin:0;padding:16px;font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5;color:#222;">${bodyHtml}</body></html>`,
+    replyTo: process.env.EMAIL_REPLY_TO || undefined,
+  });
+}
+
+export async function sendOtpEmail(to: string, code: string) {
+  const text = [
+    `Your verification code is ${code}.`,
+    "",
+    "It expires in 10 minutes. If you didn't ask for it, you can ignore this email.",
+    "",
+    APP_NAME,
+  ].join("\n");
+  await sendPlainMail(
+    to,
+    `${code} is your verification code`,
+    text,
+    `<p>Your verification code is <strong>${code}</strong>.</p>
+     <p>It expires in 10 minutes. If you didn't ask for it, you can ignore this email.</p>
+     <p>${esc(APP_NAME)}</p>`
   );
 }
 
@@ -170,19 +197,41 @@ function donationRows(details: DonationNotice): string {
 }
 
 export async function sendDonationThanks(to: string, details: DonationNotice) {
-  const laptopWord = details.quantity === 1 ? "laptop" : "laptops";
-  await sendMail(
-    to,
-    `We received your laptop offer ${details.donationId}`,
-    "Thank you for offering a laptop",
-    `<p>Dear ${esc(details.name)},</p>
-     <p>Thank you — we've received your offer of ${details.quantity} ${laptopWord}. We'll reply to this email address.</p>
-     <p><strong>Offer ID: ${esc(details.donationId)}</strong></p>
-     <p><strong>Is the charger included?</strong> ${esc(details.chargerIncluded)}</p>
-     ${donationRows(details)}
-     <p>If you can, please back up anything you want to keep and wipe the laptop before you hand it over. If you're not sure how, just reply and we'll help.</p>
-     <p>We'll be in touch about the handover.</p>`
-  );
+  const lines: [string, string | null][] = [
+    ["Brand", details.brand],
+    ["Number of laptops", String(details.quantity)],
+    ["Charger included", details.chargerIncluded],
+    ["Model", details.model],
+    ["Approximate age", details.approximateAge],
+    ["Condition", details.condition],
+    ["Data wiped", details.dataWiped],
+    ["Preferred handover", details.handover],
+    ["Area", details.location],
+    ["Notes", details.notes],
+  ];
+  const filled = lines.filter((line): line is [string, string] => Boolean(line[1]));
+  const text = [
+    `Hello ${details.name},`,
+    "",
+    `We received your laptop donation ${details.donationId}.`,
+    "",
+    ...filled.map(([label, value]) => `${label}: ${value}`),
+    "",
+    "We'll write back to this email about the handover.",
+    "",
+    "If you can, please back up anything you want to keep and wipe the laptop before you hand it over. If you're not sure how, reply to this email and we'll help.",
+    "",
+    APP_NAME,
+  ].join("\n");
+  const html = [
+    `<p>Hello ${esc(details.name)},</p>`,
+    `<p>We received your laptop donation ${esc(details.donationId)}.</p>`,
+    `<p>${filled.map(([label, value]) => `${esc(label)}: ${esc(value).replace(/\n/g, "<br>")}`).join("<br>")}</p>`,
+    `<p>We'll write back to this email about the handover.</p>`,
+    `<p>If you can, please back up anything you want to keep and wipe the laptop before you hand it over. If you're not sure how, reply to this email and we'll help.</p>`,
+    `<p>${esc(APP_NAME)}</p>`,
+  ].join("");
+  await sendPlainMail(to, `Your laptop donation ${details.donationId} received`, text, html);
 }
 
 export async function sendDonationAdminNotice(details: DonationNotice) {
